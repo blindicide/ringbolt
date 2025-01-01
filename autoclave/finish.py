@@ -76,9 +76,9 @@ def main():
     parser = argparse.ArgumentParser(description="Generate random numbers using ChaCha20.")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--custom", type=str, help="Custom seed string (16 symbols)")
-    group.add_argument("--prng", action="store_true", help="Use PRNG seed")
-    group.add_argument("--entropy", action="store_true", help="Use entropy seed")
-    parser.add_argument("-n", type=int, default=1, help="Number of blocks to generate")
+    group.add_argument("--prng", action="store_true", help="Use PRNG seed (Python's random library). Not very secure.")
+    group.add_argument("--entropy", action="store_true", help="Use entropy seed, internally generated using the STARSTONE algorithm. Slower than PRNG, but it's the best option if you don't have a random seed.")
+    parser.add_argument("-n", type=int, default=1, help="Number of strings to generate")
 
     args = parser.parse_args()
 
