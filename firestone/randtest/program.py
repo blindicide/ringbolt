@@ -26,8 +26,8 @@ def generate_entropy(iterations=100):
     return bytes(processed_entropy[:16])
 
 def generate_random_string():
-    # Generate a random string of 16 alphanumeric characters
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+    # Generate a random string of 16 numeric characters
+    return ''.join(random.choices(string.digits, k=16))
 
 def generate_strings(num_strings):
     strings = []
@@ -38,43 +38,42 @@ def generate_strings(num_strings):
         strings.append(random_string)
     return strings
 
-def chi_squared_test(strings):
-    # Flatten the list of strings into a single list of characters
-    chars = [char for s in strings for char in s]
+def monte_carlo_test(strings):
+    # Convert numeric strings to points in [0,1) x [0,1)
+    points = []
+    for s in strings:
+        # Convert first 8 digits to x, next 8 to y
+        x = int(s[:8]) / 10**8
+        y = int(s[8:16]) / 10**8
+        points.append((x, y))
     
-    # Count the frequency of each character
-    observed_freq = collections.Counter(chars)
+    # Count points inside unit circle
+    inside = sum(1 for x, y in points if x*x + y*y <= 1)
+    total = len(points)
     
-    # Expected frequency is uniform (each character should appear equally)
-    total_chars = len(chars)
-    expected_freq = total_chars / len(string.ascii_letters + string.digits)
+    # Estimate π
+    pi_estimate = 4 * inside / total
     
-    # Calculate the chi-squared statistic
-    chi_squared = 0
-    for char in string.ascii_letters + string.digits:
-        observed = observed_freq.get(char, 0)
-        chi_squared += (observed - expected_freq) ** 2 / expected_freq
+    # Calculate error from actual π
+    error = abs(pi_estimate - 3.141592653589793)
     
-    # Degrees of freedom is the number of categories minus 1
-    degrees_of_freedom = len(string.ascii_letters + string.digits) - 1
-    
-    # You can compare the chi-squared value to a critical value or use a p-value
-    # For simplicity, we'll just return the chi-squared value and degrees of freedom
-    return chi_squared, degrees_of_freedom
+    return pi_estimate, error
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate random alphanumeric strings and test their randomness.")
-    parser.add_argument('-n', '--num_strings', type=int, required=True, help="Number of strings to generate")
+    parser = argparse.ArgumentParser(description="Test randomness using Monte Carlo π estimation.")
     args = parser.parse_args()
     
-    strings = generate_strings(args.num_strings)
-    for s in strings:
-        print(s)
+    total_runs = 50
+    attempts_per_run = 50
+    total_error = 0
     
-    chi_squared, dof = chi_squared_test(strings)
-    print(f"Chi-squared value: {chi_squared}")
-    print(f"Degrees of freedom: {dof}")
+    for run in range(total_runs):
+        strings = generate_strings(attempts_per_run)
+        _, error = monte_carlo_test(strings)
+        total_error += error
+    
+    average_error = total_error / total_runs
+    print(f"Average error across {total_runs} runs: {average_error}")
 
 if __name__ == "__main__":
     main()
-
