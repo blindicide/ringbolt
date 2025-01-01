@@ -20,7 +20,7 @@ def generate_entropy(iterations=100):
             processed_entropy.append(byte)
     # If the processed entropy is shorter than 16 bytes, pad it with non-zero values
     while len(processed_entropy) < 16:
-        processed_entropy.append(1)  # Pad with 1 (non-zero)
+        processed_entropy.append(random.randint(1,9))  # Pad with 1 (non-zero)
     # Truncate to 16 bytes
     return bytes(processed_entropy[:16])
 

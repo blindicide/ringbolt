@@ -60,7 +60,7 @@ def generate_entropy(iterations=100):
         if byte != 0:
             processed_entropy.append(byte)
     while len(processed_entropy) < 16:
-        processed_entropy.append(1)
+        processed_entropy.append(random.randint(1,9)) # at least some randomness
     return bytes(processed_entropy[:16])
 
 def generate_numbers(key, nonce, counter, count=1):
